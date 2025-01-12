@@ -1,8 +1,7 @@
 package speedtest
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/showwin/speedtest-go/speedtest"
@@ -28,23 +27,23 @@ func SpeedTestError(err error) SpeedTestResult {
 
 func SpeedTest() []SpeedTestResult {
 	result := make([]SpeedTestResult, 0)
-	fmt.Println("Starting Speed Test...")
+	slog.Info("starting speed test")
 
 	serverList, err := speedtest.FetchServers()
 	if err != nil {
-		log.Printf("Error fetching server list: %v\n", err)
+		slog.Error("error fetching server list", "error", err)
 		return append(result, SpeedTestError(err))
 	}
 
 	// Find closest server
 	targets, err := serverList.FindServer([]int{})
 	if err != nil {
-		log.Printf("Error finding server: %v\n", err)
+		slog.Error("error finding server", "error", err)
 		return append(result, SpeedTestError(err))
 	}
 
 	for _, server := range targets {
-		fmt.Printf("Testing against %s (%s)...\n", server.Name, server.Country)
+		slog.Info("testing against", "name", server.Name, "country", server.Country)
 
 		if server.Name != "London" {
 			break
@@ -53,7 +52,7 @@ func SpeedTest() []SpeedTestResult {
 		// Test download
 		err = server.DownloadTest()
 		if err != nil {
-			log.Printf("Error testing download: %v\n", err)
+			slog.Error("error testing download", "error", err)
 			result = append(result, SpeedTestError(err))
 			continue
 		}
@@ -61,7 +60,7 @@ func SpeedTest() []SpeedTestResult {
 		// Test upload
 		err = server.UploadTest()
 		if err != nil {
-			log.Printf("Error testing upload: %v\n", err)
+			slog.Error("error testing upload", "error", err)
 			result = append(result, SpeedTestError(err))
 			continue
 		}
@@ -75,6 +74,8 @@ func SpeedTest() []SpeedTestResult {
 			"",
 		})
 	}
+
+	slog.Info("speed test completed")
 
 	return result
 }
