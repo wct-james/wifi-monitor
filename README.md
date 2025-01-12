@@ -2,10 +2,14 @@
 
 Run this in a cron job to test your WiFi speed regularly 
 
+## Usage
 
-#### Example Crontab
+Build the binary:
+`go build -o ./build/wifi-monitor cmd/main.go`
 
-##### E.g. Every 5 minutes
+Add the executable to a cron job:
+
+> e.g. Every 5 minutes
 Run: `crontab -e`
 Then insert this line to the file
 ```
